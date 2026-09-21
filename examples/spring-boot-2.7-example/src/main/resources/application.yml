@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: lingtong-spring-boot-2.7-example
+
+server:
+  port: 9999

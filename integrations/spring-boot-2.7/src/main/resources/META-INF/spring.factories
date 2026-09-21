@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+io.github.o1o00o10.lingtong.spring.boot.LingTongServletWebServerFactoryAutoConfiguration

@@ -1,0 +1,44 @@
+# Maven outputs
+**/target/
+dependency-reduced-pom.xml
+flattened-pom.xml
+pom.xml.releaseBackup
+release.properties
+
+# IDE and editor state
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*~
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Runtime output
+*.log
+*.pid
+hs_err_pid*
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Local Codex/agent state
+.codex/
+.agents/
+.github/modernize/
+
+# Private design material and all test suites.
+# Tests remain available locally but are excluded from public GitHub/Gitee commits.
+docs/
+tests/
+**/src/test/

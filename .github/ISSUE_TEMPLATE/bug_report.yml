@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible LingTong defect. Do not disclose security issues here.
+title: "[Bug] "
+labels: [bug, needs-reproducer]
+body:
+  - type: markdown
+    attributes:
+      value: Security vulnerabilities must be reported privately according to SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: LingTong version or commit
+      placeholder: 0.1.0-SNAPSHOT or commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: java
+    attributes:
+      label: Java version
+      options: [Java 8, Java 11, Java 17, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Explain the expected and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: Include the smallest safe code/configuration and exact commands.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs
+      description: Remove tokens, cookies, personal data, internal hosts, and customer information.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I verified this is not an undisclosed security vulnerability.
+          required: true
+        - label: I removed secrets and personal or customer data.
+          required: true

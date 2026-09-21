@@ -1,0 +1,14 @@
+LingTong Runtime
+Copyright (C) 2026 01o00o10
+
+The publicly available source code is licensed under the GNU Affero General
+Public License, version 3 only. See LICENSE.
+
+Alternative commercial licenses are available from the copyright owner for
+organizations that cannot or do not wish to comply with AGPL-3.0-only. See
+COMMERCIAL-LICENSE.md.
+
+LingTong is not Apache Tomcat, TongWeb, JBoss, or Undertow. Those names and
+trademarks belong to their respective owners. References to them describe
+compatibility or migration targets and do not imply endorsement or
+certification.
