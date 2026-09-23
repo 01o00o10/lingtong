@@ -21,8 +21,13 @@ Requirements:
 - Maven 3.8 or later.
 
 ```shell
+mvn -B -ntp spotless:apply
 mvn -B -ntp -DskipTests clean package
 ```
+
+Spotless formats production Java sources with the repository-pinned Google
+Java Format version. The `validate` phase checks formatting, so `package` and
+CI fail when source files have not been formatted.
 
 The public repository contains production source and buildable examples but
 does not publish the project's test suites or design documents. Contributors
@@ -33,6 +38,12 @@ integration, compatibility, and security suites before merging or releasing.
 ## Change Requirements
 
 - Keep changes focused and preserve module ownership boundaries.
+- Keep top-level classes focused on one responsibility. Move independent
+  adapters, codecs, formatters, wrappers, and thread factories into
+  package-private classes instead of growing unrelated static nested classes.
+- Keep stateful nested classes only when their lifetime and invariants are
+  inseparable from the owning class; do not extract them merely to reduce a
+  line count.
 - Provide reproducible verification steps for behavior changes and protocol
   edge cases.
 - Do not introduce Netty, Tomcat, Jetty, Undertow, Grizzly, or another server

@@ -119,10 +119,12 @@ and require their own redaction and retention review.
 
 ## Documentation
 
-Detailed configuration, migration, and usage guides will be published as blog
-articles. This README intentionally keeps only the reproducible installation,
-example, compatibility boundary, and security information. Blog links will be
-added here after publication.
+The complete user documentation is available in the
+[GitHub Wiki](https://github.com/01o00o10/lingtong/wiki), including quick start,
+Spring Boot integration, configuration, architecture, Tomcat migration,
+diagnostics, security, and troubleshooting. Reviewable Wiki sources live in
+[wiki/](wiki/); publication steps are in
+[WIKI-PUBLISHING.md](WIKI-PUBLISHING.md).
 
 ## Security And Support
 

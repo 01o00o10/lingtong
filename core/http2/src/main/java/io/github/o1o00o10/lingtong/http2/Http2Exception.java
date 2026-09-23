@@ -9,17 +9,22 @@ import java.io.IOException;
 
 /** 附带 HTTP/2 错误码及作用域的协议异常。 */
 public final class Http2Exception extends IOException {
-    /** 线上的 HTTP/2 错误码。 */
-    private final int errorCode;
-    /** 非零表示流级错误，零表示连接级错误。 */
-    private final int streamId;
+  /** 线上的 HTTP/2 错误码。 */
+  private final int errorCode;
+  /** 非零表示流级错误，零表示连接级错误。 */
+  private final int streamId;
 
-    public Http2Exception(int errorCode, int streamId, String message) {
-        super(message);
-        this.errorCode = errorCode;
-        this.streamId = streamId;
-    }
+  public Http2Exception(int errorCode, int streamId, String message) {
+    super(message);
+    this.errorCode = errorCode;
+    this.streamId = streamId;
+  }
 
-    public int errorCode() { return errorCode; }
-    public int streamId() { return streamId; }
+  public int errorCode() {
+    return errorCode;
+  }
+
+  public int streamId() {
+    return streamId;
+  }
 }

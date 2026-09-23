@@ -112,8 +112,10 @@ URL、参数或响应数据，需要单独评估脱敏和保留策略。
 
 ## 使用文档
 
-详细配置、迁移方法和使用指南将以博客文章形式发布。README 只保留可复现的安装
-步骤、运行示例、兼容边界和安全信息；博客发布后会在这里补充入口链接。
+完整使用文档见 [GitHub Wiki](https://github.com/01o00o10/lingtong/wiki)，包括快速
+开始、Spring Boot 集成、配置参考、架构、Tomcat 迁移、诊断、安全和故障排查。
+Wiki 的可审查源文件保存在 [wiki/](wiki/)；发布方法见
+[WIKI-PUBLISHING.md](WIKI-PUBLISHING.md)。
 
 ## 安全与支持
 

@@ -36,6 +36,7 @@ hs_err_pid*
 .codex/
 .agents/
 .github/modernize/
+.kilo/
 
 # Private design material and all test suites.
 # Tests remain available locally but are excluded from public GitHub/Gitee commits.

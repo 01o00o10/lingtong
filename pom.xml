@@ -72,6 +72,8 @@
         <maven.compiler.version>3.13.0</maven.compiler.version>
         <maven.surefire.version>3.5.2</maven.surefire.version>
         <maven.enforcer.version>3.4.1</maven.enforcer.version>
+        <spotless.version>2.30.0</spotless.version>
+        <google.java.format.version>1.7</google.java.format.version>
         <maven.source.version>3.3.1</maven.source.version>
         <maven.javadoc.version>3.11.2</maven.javadoc.version>
         <maven.gpg.version>3.2.8</maven.gpg.version>
@@ -151,6 +153,33 @@
                                 </bannedDependencies>
                             </rules>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                        </includes>
+                        <googleJavaFormat>
+                            <version>${google.java.format.version}</version>
+                        </googleJavaFormat>
+                        <removeUnusedImports/>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-java-format</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
