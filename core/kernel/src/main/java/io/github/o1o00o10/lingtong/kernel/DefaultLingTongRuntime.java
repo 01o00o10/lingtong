@@ -84,6 +84,8 @@ public final class DefaultLingTongRuntime implements LingTongRuntime {
   private final TransportConfig transportConfig;
   /** 工作线程线程集合。 */
   private final int workerThreads;
+
+  private final int workerCoreThreads;
   /** 工作线程队列容量。 */
   private final int workerQueueCapacity;
   /** 应用。 */
@@ -180,6 +182,29 @@ public final class DefaultLingTongRuntime implements LingTongRuntime {
       WebSocketEndpointRegistry webSockets,
       int maxWebSocketMessageBytes,
       ManagementConfig managementConfig) {
+    this(
+        transportConfig,
+        Math.min(8, workerThreads),
+        workerThreads,
+        workerQueueCapacity,
+        application,
+        webSockets,
+        maxWebSocketMessageBytes,
+        managementConfig);
+  }
+
+  public DefaultLingTongRuntime(
+      TransportConfig transportConfig,
+      int workerCoreThreads,
+      int workerThreads,
+      int workerQueueCapacity,
+      ServletApplication application,
+      WebSocketEndpointRegistry webSockets,
+      int maxWebSocketMessageBytes,
+      ManagementConfig managementConfig) {
+    if (workerCoreThreads <= 0 || workerCoreThreads > workerThreads) {
+      throw new IllegalArgumentException("workerCoreThreads must be positive and <= workerThreads");
+    }
     if (transportConfig == null) {
       throw new IllegalArgumentException("transportConfig must not be null");
     }
@@ -197,6 +222,7 @@ public final class DefaultLingTongRuntime implements LingTongRuntime {
     }
     this.transportConfig = transportConfig;
     this.workerThreads = workerThreads;
+    this.workerCoreThreads = workerCoreThreads;
     this.workerQueueCapacity = workerQueueCapacity;
     this.application = application;
     this.webSockets = webSockets;
@@ -229,7 +255,8 @@ public final class DefaultLingTongRuntime implements LingTongRuntime {
       }
 
       BoundedExecutionDomain nextExecution =
-          new BoundedExecutionDomain(workerThreads, workerQueueCapacity, "lingtong-worker");
+          new BoundedExecutionDomain(
+              workerCoreThreads, workerThreads, workerQueueCapacity, "lingtong-worker");
       NioHttpServer nextServer =
           new NioHttpServer(transportConfig, new KernelProcessor(), nextExecution);
       BoundedExecutionDomain nextManagementExecution = null;
