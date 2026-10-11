@@ -12,33 +12,87 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/** 固定线程数、有界队列的应用执行域，过载时显式拒绝任务。 */
+/** 有界执行域，支持繁忙时优先扩容线程，过载时显式拒绝任务。 */
 public final class BoundedExecutionDomain implements AutoCloseable {
   /** 工作线程及有界任务队列的所有者。 */
   private final ThreadPoolExecutor executor;
 
   public BoundedExecutionDomain(int threads, int queueCapacity, String threadPrefix) {
-    if (threads <= 0 || queueCapacity <= 0) {
-      throw new IllegalArgumentException("threads and queueCapacity must be positive");
-    }
-    this.executor =
-        new ThreadPoolExecutor(
-            threads,
-            threads,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(queueCapacity),
-            new NamedThreadFactory(threadPrefix),
-            new ThreadPoolExecutor.AbortPolicy());
+    this(threads, threads, queueCapacity, threadPrefix);
   }
 
-  /** 入队成功返回 true；满载或关闭后的拒绝返回 false。 */
+  /** 空闲线程优先复用，繁忙时先扩容至 maxThreads，再进入有界队列。 */
+  public BoundedExecutionDomain(
+      int coreThreads, int maxThreads, int queueCapacity, String threadPrefix) {
+    if (coreThreads <= 0 || maxThreads < coreThreads || queueCapacity <= 0) {
+      throw new IllegalArgumentException("invalid coreThreads, maxThreads or queueCapacity");
+    }
+    EagerQueue queue = new EagerQueue(queueCapacity);
+    this.executor =
+        new ThreadPoolExecutor(
+            coreThreads,
+            maxThreads,
+            60L,
+            TimeUnit.SECONDS,
+            queue,
+            new NamedThreadFactory(threadPrefix),
+            new ThreadPoolExecutor.AbortPolicy());
+    queue.owner = executor;
+  }
+
+  /** 已提交且尚未结束的任务数，包括正在提交的任务，避免只靠 activeCount 低估负载。 */
+  private final AtomicInteger submitted = new AtomicInteger();
+
+  /** 接收成功返回 true；满载或关闭后的拒绝返回 false。 */
   public boolean execute(Runnable task) {
+    if (task == null) throw new NullPointerException("task");
+    Runnable counted =
+        () -> {
+          try {
+            task.run();
+          } finally {
+            submitted.decrementAndGet();
+          }
+        };
+    submitted.incrementAndGet();
+    boolean accepted = false;
     try {
-      executor.execute(task);
-      return true;
-    } catch (RejectedExecutionException ignored) {
-      return false;
+      try {
+        executor.execute(counted);
+        accepted = true;
+      } catch (RejectedExecutionException ignored) {
+        // 多个提交者同时触发扩容时，失败者仍可使用剩余队列容量。
+        EagerQueue queue = (EagerQueue) executor.getQueue();
+        if (!executor.isShutdown() && queue.force(counted)) {
+          // 与 execute 的关闭检查保持一致，撤回尚未执行的任务。
+          accepted = !(executor.isShutdown() && executor.remove(counted));
+        }
+      }
+      return accepted;
+    } finally {
+      if (!accepted) submitted.decrementAndGet();
+    }
+  }
+
+  private final class EagerQueue extends ArrayBlockingQueue<Runnable> {
+    private static final long serialVersionUID = 1L;
+    private ThreadPoolExecutor owner;
+
+    private EagerQueue(int capacity) {
+      super(capacity);
+    }
+
+    @Override
+    public boolean offer(Runnable task) {
+      int poolSize = owner.getPoolSize();
+      if (submitted.get() > poolSize && poolSize < owner.getMaximumPoolSize()) {
+        return false;
+      }
+      return super.offer(task);
+    }
+
+    private boolean force(Runnable task) {
+      return super.offer(task);
     }
   }
 

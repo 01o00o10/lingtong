@@ -50,7 +50,7 @@ public final class Main {
 ## 常用构建项
 
 - 传输：`bindAddress`、`port`、`ioShards`、`idleTimeoutMillis`
-- 容量：`maxHeaderBytes`、`maxBodyBytes`、`workerThreads`
+- 容量：`maxHeaderBytes`、`maxBodyBytes`、`workerCoreThreads`、`workerThreads`、`workerQueueCapacity`
 - Servlet：`servlet`、`filter`、`listener`、`initializer`
 - 静态资源与部署：`resourceRoot`、`webApplication`
 - 协议：`http2Enabled`、`webSocket`、`maxWebSocketMessageBytes`
@@ -61,3 +61,18 @@ public final class Main {
 Builder 在构建后不可重复修改或再次构建。建议每个监听实例创建独立 Builder，避免
 在应用代码里共享可变装配状态。
 
+
+### 业务线程池
+
+`workerCoreThreads` 设置核心线程数，默认 `min(8, workerThreads)`；`workerThreads`
+设置最大线程数，默认 CPU 核数 × 8，最少 32、最多 256。核心线程按需创建。
+空闲线程优先复用，繁忙时优先扩容至最大线程数，再进入容量由
+`workerQueueCapacity` 指定的有界队列（默认 8192）；队列满后拒绝任务。
+超过核心数的线程空闲 60 秒后回收。核心线程数必须大于 0 且不超过最大线程数。
+
+```java
+LingTong.builder()
+    .workerCoreThreads(8)
+    .workerThreads(128)
+    .workerQueueCapacity(1024);
+```

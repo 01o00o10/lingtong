@@ -129,6 +129,8 @@ public final class LingTong {
     private boolean http2Enabled;
     /** 工作线程线程集合。 */
     private int workerThreads = defaultWorkerThreads();
+
+    private Integer workerCoreThreads;
     /** 工作线程队列容量。 */
     private int workerQueueCapacity = 8192;
     /** 最大会话集合。 */
@@ -387,6 +389,15 @@ public final class LingTong {
       return this;
     }
 
+    /** 设置常驻核心线程数；默认 min(8, workerThreads)。 */
+    public Builder workerCoreThreads(int value) {
+      requireNotBuilt();
+      if (value <= 0) throw new IllegalArgumentException("workerCoreThreads must be positive");
+      workerCoreThreads = value;
+      return this;
+    }
+
+    /** 设置业务线程数上限，繁忙时优先扩容至此上限再排队。 */
     public Builder workerThreads(int value) {
       requireNotBuilt();
       workerThreads = value;
@@ -851,6 +862,7 @@ public final class LingTong {
         DefaultLingTongRuntime runtime =
             new DefaultLingTongRuntime(
                 transport,
+                workerCoreThreads == null ? Math.min(8, workerThreads) : workerCoreThreads,
                 workerThreads,
                 workerQueueCapacity,
                 servletApplication,
